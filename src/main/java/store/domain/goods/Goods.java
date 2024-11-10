@@ -34,7 +34,7 @@ public class Goods {
 
     public void decreaseStock(int quantity) {
         if (stock < quantity) {
-            throw new IllegalStateException("[ERROR] 재고가 부족합니다.");
+            throw new IllegalStateException("[ERROR] 재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
         }
         stock -= quantity;
     }
@@ -57,5 +57,14 @@ public class Goods {
 
     public PromotionType getPromotionType() {
         return promotionType;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("- %s %,d원 %s%s",
+            name,
+            price,
+            hasStock() ? stock + "개" : "재고 없음",
+            hasPromotion() ? " " + promotionType.getDescription() : "");
     }
 }
