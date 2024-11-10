@@ -45,28 +45,44 @@ public class GoodsService {
     }
 
     private void parseLine(String line) {
-        // 파일 형식에 맞게 파싱 로직 구현
-        // 예: 콜라,1000,10,탄산2+1
         String[] parts = line.split(",");
         String name = parts[0];
         int price = Integer.parseInt(parts[1]);
         int stock = Integer.parseInt(parts[2]);
-        PromotionType type = parts.length > 3 ?
-            PromotionType.valueOf(parts[3]) : PromotionType.NONE;
+        PromotionType type = (parts.length > 3 && parts[3] != null && !parts[3].equals("null")) ?
+            parsePromotionType(parts[3]) : PromotionType.NONE;
 
-        goodsMap.put(name, new Goods(name, price, stock, type));
+        // 재고가 없는 버전의 상품도 추가
+        if (type != PromotionType.NONE) {
+            // 프로모션 상품 추가
+            goodsMap.put(name + "-promotion", new Goods(name, price, stock, type));
+            // 재고 없는 일반 상품 추가
+            goodsMap.put(name + "-regular", new Goods(name, price, 0, PromotionType.NONE));
+        } else {
+            // 일반 상품 추가
+            goodsMap.put(name, new Goods(name, price, stock, PromotionType.NONE));
+        }
+    }
+
+    private PromotionType parsePromotionType(String type) {
+        return switch (type.trim()) {
+            case "탄산2+1" -> PromotionType.BUY_2_GET_1;
+            case "MD추천상품" -> PromotionType.MD_RECOMMENDATION;
+            case "반짝할인" -> PromotionType.FLASH_SALE;
+            default -> PromotionType.NONE;
+        };
     }
 
     private void parsePromotionLine(String line) {
-        // 프로모션 파일 파싱 로직 구현
         String[] parts = line.split(",");
-        String name = parts[0];
-        PromotionType type = PromotionType.valueOf(parts[1]);
-        int stock = Integer.parseInt(parts[2]);
+        // 프로모션 파일 형식: 탄산2+1,2,1,2024-01-01,2024-12-31
+        String promotionName = parts[0];
+        PromotionType type = parsePromotionType(promotionName);
+        int stock = Integer.parseInt(parts[1]);
         LocalDate startDate = LocalDate.parse(parts[3]);
         LocalDate endDate = LocalDate.parse(parts[4]);
 
-        promotionMap.put(name, new Promotion(name, type, stock, startDate, endDate));
+        promotionMap.put(promotionName, new Promotion(promotionName, type, stock, startDate, endDate));
     }
 
     public Goods findGoods(String name) {
@@ -81,6 +97,14 @@ public class GoodsService {
     }
 
     public List<Goods> getAllGoods() {
-        return new ArrayList<>(goodsMap.values());
+        return goodsMap.values().stream()
+            .sorted((a, b) -> {
+                if (a.getName().equals(b.getName())) {
+                    if (a.hasPromotion() && !b.hasPromotion()) return -1;
+                    if (!a.hasPromotion() && b.hasPromotion()) return 1;
+                }
+                return 0;
+            })
+            .toList();
     }
 }
