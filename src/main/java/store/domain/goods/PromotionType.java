@@ -2,8 +2,7 @@ package store.domain.goods;
 
 public enum PromotionType {
     NONE("없음", 0, 0),
-    BUY_1_GET_1("1+1", 1, 1),
-    BUY_2_GET_1("2+1", 2, 1),
+    BUY_2_GET_1("탄산2+1", 2, 1),
     MD_RECOMMENDATION("MD추천상품", 1, 1),
     FLASH_SALE("반짝할인", 0, 0);
 
