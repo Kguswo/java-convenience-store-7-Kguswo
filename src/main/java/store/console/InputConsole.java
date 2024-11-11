@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 public class InputConsole {
     private static final String ORDER_PATTERN = "^\\[(.*?)\\](,\\[(.*?)\\])*$";
     private static final String ITEM_PATTERN = "^(.*?)-(\\d+)$";
+    private static final int MAX_ORDERS = 10; // 한 번에 주문 가능한 최대 상품 종류
 
     public List<OrderInput> readOrder() {
         while (true) {
@@ -33,7 +34,7 @@ public class InputConsole {
                 validateYesNo(input);
                 return "Y".equals(input);
             } catch (IllegalArgumentException e) {
-                System.out.println(e.getMessage());
+                System.out.println("[ERROR] 잘못된 입력입니다. 다시 입력해 주세요.");
             }
         }
     }
@@ -57,7 +58,7 @@ public class InputConsole {
                 .map(this::parseOrderItem)
                 .filter(orderInput -> {
                     if (!uniqueNames.add(orderInput.getName())) {
-                        throw new IllegalArgumentException("[ERROR] 중복된 상품을 주문할 수 없습니다.");
+                        throw new IllegalArgumentException("[ERROR] 올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.");
                     }
                     return true;
                 })
