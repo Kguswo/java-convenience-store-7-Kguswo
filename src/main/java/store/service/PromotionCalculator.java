@@ -36,6 +36,8 @@ public class PromotionCalculator {
 
             case MD_RECOMMENDATION:
                 return (quantity >= 1 && promotion.hasPromotionStock()) ? 1 : 0;
+            case FLASH_SALE:
+                return (quantity >= 1 && promotion.hasPromotionStock()) ? 1 : 0;
 
             default:
                 return 0;
@@ -67,13 +69,11 @@ public class PromotionCalculator {
                 }
                 return 0;
 
-            case FLASH_SALE:
+            case FLASH_SALE:  // FLASH_SALE도 1+1과 같은 방식으로 처리
                 if (quantity >= 1 && promotion.hasPromotionStock()) {
-                    int discountQuantity = Math.min(quantity, promotion.getPromotionStock());
-                    return (goods.getPrice() * promotion.getType().getDiscountRate() / 100) * discountQuantity;
+                    return goods.getPrice();  // 1개 가격만큼 할인
                 }
                 return 0;
-
             default:
                 return 0;
         }
@@ -108,6 +108,8 @@ public class PromotionCalculator {
                 return quantity == 1;  // MD추천상품은 1개 구매시 1개 추가 가능
             case BUY_2_GET_1:
                 return quantity == 2;  // 2+1은 2개 구매시 1개 추가 제안
+            case FLASH_SALE:
+                return quantity == 1;
             default:
                 return false;
         }
