@@ -12,7 +12,7 @@ public class Promotion {
     private final LocalDate endDate;
 
     public Promotion(String goodsName, PromotionType type, int promotionStock,
-                    LocalDate startDate, LocalDate endDate) {
+                     LocalDate startDate, LocalDate endDate) {
         this.goodsName = goodsName;
         this.type = type;
         this.promotionStock = promotionStock;
@@ -30,7 +30,7 @@ public class Promotion {
     }
 
     public void decreasePromotionStock(int quantity) {
-        if (promotionStock < quantity) {
+        if (quantity > promotionStock) {
             throw new IllegalStateException("[ERROR] 프로모션 재고가 부족합니다.");
         }
         promotionStock -= quantity;

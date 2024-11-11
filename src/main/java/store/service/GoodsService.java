@@ -9,13 +9,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class GoodsService {
-    private final Map<String, Goods> goodsMap = new HashMap<>();
-    private final Map<String, Promotion> promotionMap = new HashMap<>();
+    private final Map<String, List<Goods>> goodsMap = new LinkedHashMap<>();
+    private final Map<String, Promotion> promotionMap = new LinkedHashMap<>();
 
     public void initializeGoods(String productsPath, String promotionsPath) {
         loadProducts(productsPath);
@@ -49,19 +49,11 @@ public class GoodsService {
         String name = parts[0];
         int price = Integer.parseInt(parts[1]);
         int stock = Integer.parseInt(parts[2]);
-        PromotionType type = (parts.length > 3 && parts[3] != null && !parts[3].equals("null")) ?
-            parsePromotionType(parts[3]) : PromotionType.NONE;
+        PromotionType type = (parts.length > 3 && !parts[3].equals("null")) ?
+                parsePromotionType(parts[3]) : PromotionType.NONE;
 
-        // 재고가 없는 버전의 상품도 추가
-        if (type != PromotionType.NONE) {
-            // 프로모션 상품 추가
-            goodsMap.put(name + "-promotion", new Goods(name, price, stock, type));
-            // 재고 없는 일반 상품 추가
-            goodsMap.put(name + "-regular", new Goods(name, price, 0, PromotionType.NONE));
-        } else {
-            // 일반 상품 추가
-            goodsMap.put(name, new Goods(name, price, stock, PromotionType.NONE));
-        }
+        Goods goods = new Goods(name, price, stock, type);
+        goodsMap.computeIfAbsent(name, k -> new ArrayList<>()).add(goods);
     }
 
     private PromotionType parsePromotionType(String type) {
@@ -75,7 +67,6 @@ public class GoodsService {
 
     private void parsePromotionLine(String line) {
         String[] parts = line.split(",");
-        // 프로모션 파일 형식: 탄산2+1,2,1,2024-01-01,2024-12-31
         String promotionName = parts[0];
         PromotionType type = parsePromotionType(promotionName);
         int stock = Integer.parseInt(parts[1]);
@@ -86,25 +77,55 @@ public class GoodsService {
     }
 
     public Goods findGoods(String name) {
-        if (!goodsMap.containsKey(name)) {
-            throw new IllegalArgumentException("[ERROR] 존재하지 않는 상품입니다.");
+        List<Goods> goodsList = goodsMap.get(name);
+        if (goodsList == null) {
+            return null;
         }
-        return goodsMap.get(name);
+
+        // 1. 프로모션 상품 중 재고가 있는 것을 우선 반환
+        for (Goods goods : goodsList) {
+            if (goods.hasPromotion() && goods.hasStock()) {
+                return goods;
+            }
+        }
+
+        // 2. 일반 상품 중 재고가 있는 것을 반환
+        for (Goods goods : goodsList) {
+            if (!goods.hasPromotion() && goods.hasStock()) {
+                return goods;
+            }
+        }
+
+        // 3. 재고가 없는 경우 첫 번째 상품 반환
+        return goodsList.get(0);
     }
+
 
     public Promotion findPromotion(String name) {
         return promotionMap.get(name);
     }
 
     public List<Goods> getAllGoods() {
-        return goodsMap.values().stream()
-            .sorted((a, b) -> {
-                if (a.getName().equals(b.getName())) {
-                    if (a.hasPromotion() && !b.hasPromotion()) return -1;
-                    if (!a.hasPromotion() && b.hasPromotion()) return 1;
-                }
-                return 0;
-            })
-            .toList();
+        List<Goods> allGoods = new ArrayList<>();
+        for (List<Goods> goodsList : goodsMap.values()) {
+            allGoods.addAll(goodsList);
+        }
+        return allGoods;
+    }
+
+    public int getTotalStock(String name) {
+        List<Goods> goodsList = goodsMap.get(name);
+        if (goodsList == null) {
+            return 0;
+        }
+
+        return goodsList.stream()
+                .mapToInt(Goods::getStock)
+                .sum();
+    }
+
+    public List<Goods> getAllGoodsWithName(String name) {
+        List<Goods> goodsList = goodsMap.get(name);
+        return goodsList != null ? new ArrayList<>(goodsList) : new ArrayList<>();
     }
 }

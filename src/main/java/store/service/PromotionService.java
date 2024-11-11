@@ -10,9 +10,12 @@ public class PromotionService {
             return 0;
         }
 
-        PromotionType type = promotion.getType();
-        int sets = quantity / (type.getRequiredQuantity() + type.getFreeQuantity());
-        return Math.min(sets * type.getFreeQuantity(), promotion.getPromotionStock());
+        if (promotion.getType() == PromotionType.BUY_2_GET_1) {
+            int sets = quantity / 2; // 2개 구매당 1개 증정
+            return Math.min(sets, promotion.getPromotionStock());
+        }
+
+        return 0;
     }
 
     public int calculateDiscount(Promotion promotion, int price, int quantity) {

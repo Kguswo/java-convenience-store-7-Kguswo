@@ -7,6 +7,9 @@ import store.service.GoodsService;
 import store.service.OrderService;
 import store.service.PromotionService;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Application {
     private static final String PRODUCTS_PATH = "src/main/resources/products.md";
     private static final String PROMOTIONS_PATH = "src/main/resources/promotions.md";
@@ -48,18 +51,56 @@ public class Application {
     }
 
     private void processOrder() {
-        var orderInputs = inputConsole.readOrder();
+        List<InputConsole.OrderInput> finalOrderInputs = new ArrayList<>();
+        var inputs = inputConsole.readOrder();
+        System.out.println();  // 입력 후 빈 줄 추가
 
-        boolean useMembership = inputConsole.readYesNo(
-            "멤버십 할인을 받으시겠습니까?");
+        for (var input : inputs) {
+            var modifiedInput = input;
+            var goods = goodsService.findGoods(input.getName());
 
-        Receipt receipt = orderService.createOrder(orderInputs, useMembership);
+            // 프로모션 추가 구매 가능 여부 확인
+            if (orderService.canAddPromotionItems(goods, input.getQuantity())) {
+                int freeQuantity = orderService.getPromotionFreeQuantity(goods);
+                String message = String.format(
+                        "현재 %s은(는) %d개를 무료로 더 받을 수 있습니다. 추가하시겠습니까?",
+                        goods.getName(), freeQuantity);
+
+                if (inputConsole.readYesNo(message)) {
+                    modifiedInput = new InputConsole.OrderInput(
+                            input.getName(),
+                            input.getQuantity() + freeQuantity
+                    );
+                }
+                System.out.println();  // 프로모션 메시지 후 빈 줄 추가
+            }
+
+            // 프로모션 재고 부족 확인
+            if (orderService.needsPromotionConfirmation(goods, modifiedInput.getQuantity())) {
+                int regularQuantity = orderService.getRegularQuantity(goods, modifiedInput.getQuantity());
+                String message = String.format(
+                        "현재 %s %d개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까?",
+                        goods.getName(), regularQuantity);
+
+                if (!inputConsole.readYesNo(message)) {
+                    throw new IllegalStateException("[ERROR] 구매가 취소되었습니다.");
+                }
+                System.out.println();  // 확인 메시지 후 빈 줄 추가
+            }
+
+            finalOrderInputs.add(modifiedInput);
+        }
+
+        boolean useMembership = inputConsole.readYesNo("멤버십 할인을 받으시겠습니까?");
+        System.out.println();  // 멤버십 입력 후 빈 줄 추가
+
+        Receipt receipt = orderService.createOrder(finalOrderInputs, useMembership);
         outputConsole.printReceipt(receipt);
     }
 
     private boolean askForAdditionalPurchase() {
         boolean hasMore = inputConsole.readYesNo(
-            "감사합니다. 구매하고 싶은 다른 상품이 있나요?");
+                "감사합니다. 구매하고 싶은 다른 상품이 있나요?");
 
         if (hasMore) {
             outputConsole.printWelcomeMessage();
