@@ -7,7 +7,7 @@ import store.domain.receipt.Receipt;
 import java.util.List;
 
 public class OutputConsole {
-    private static final String STORE_NAME = "W 편의점";
+    private static final String STORE_NAME = "W편의점";
     // 44개의 = 문자
     private static final String SEPARATOR = "====================================";
     private static final String STORE_HEADER = "==============W 편의점================";
@@ -75,6 +75,7 @@ public class OutputConsole {
                 String.format("-%,d", receipt.getMembershipDiscount()));
         System.out.printf("%-29s%-25s%n", "내실돈",
                 String.format("%,d", receipt.getFinalAmount()));
+        System.out.println();
     }
 
     public void printErrorMessage(String message) {
