@@ -3,7 +3,9 @@ package store.console;
 import camp.nextstep.edu.missionutils.Console;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class InputConsole {
@@ -44,21 +46,28 @@ public class InputConsole {
 
     private void validateYesNo(String input) {
         if (!input.equals("Y") && !input.equals("N")) {
-            throw new IllegalArgumentException("[ERROR] Y 또는 N만 입력 가능합니다.");
+            throw new IllegalArgumentException("[ERROR] 잘못된 입력입니다. 다시 입력해 주세요.");
         }
     }
 
     private List<OrderInput> parseOrderInput(String input) {
         String[] items = input.split(",");
+        Set<String> uniqueNames = new HashSet<>();
         return Arrays.stream(items)
                 .map(this::parseOrderItem)
+                .filter(orderInput -> {
+                    if (!uniqueNames.add(orderInput.getName())) {
+                        throw new IllegalArgumentException("[ERROR] 중복된 상품을 주문할 수 없습니다.");
+                    }
+                    return true;
+                })
                 .toList();
     }
 
     private OrderInput parseOrderItem(String item) {
         String content = item.replaceAll("[\\[\\]]", "");
         if (!Pattern.matches(ITEM_PATTERN, content)) {
-            throw new IllegalArgumentException("[ERROR] 상품 입력 형식이 올바르지 않습니다.");
+            throw new IllegalArgumentException("[ERROR] 올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.");
         }
 
         String[] parts = content.split("-");
@@ -67,10 +76,10 @@ public class InputConsole {
         try {
             quantity = Integer.parseInt(parts[1]);
             if (quantity <= 0) {
-                throw new IllegalArgumentException("[ERROR] 수량은 1 이상이어야 합니다.");
+                throw new IllegalArgumentException("[ERROR] 올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.");
             }
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("[ERROR] 수량은 숫자로 입력해야 합니다.");
+            throw new IllegalArgumentException("[ERROR] 올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.");
         }
 
         return new OrderInput(name, quantity);
