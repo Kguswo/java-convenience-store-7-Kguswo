@@ -1,6 +1,7 @@
 package store.console;
 
 import camp.nextstep.edu.missionutils.Console;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -10,17 +11,29 @@ public class InputConsole {
     private static final String ITEM_PATTERN = "^(.*?)-(\\d+)$";
 
     public List<OrderInput> readOrder() {
-        System.out.println("구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])");
-        String input = Console.readLine();
-        validateOrderFormat(input);
-        return parseOrderInput(input);
+        while (true) {
+            try {
+                System.out.println("구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])");
+                String input = Console.readLine();
+                validateOrderFormat(input);
+                return parseOrderInput(input);
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
+        }
     }
 
     public boolean readYesNo(String message) {
-        System.out.println(message + " (Y/N)");
-        String input = Console.readLine().toUpperCase();
-        validateYesNo(input);
-        return "Y".equals(input);
+        while (true) {
+            try {
+                System.out.println(message + " (Y/N)");
+                String input = Console.readLine().toUpperCase();
+                validateYesNo(input);
+                return "Y".equals(input);
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
+        }
     }
 
     private void validateOrderFormat(String input) {
@@ -50,7 +63,15 @@ public class InputConsole {
 
         String[] parts = content.split("-");
         String name = parts[0];
-        int quantity = Integer.parseInt(parts[1]);
+        int quantity;
+        try {
+            quantity = Integer.parseInt(parts[1]);
+            if (quantity <= 0) {
+                throw new IllegalArgumentException("[ERROR] 수량은 1 이상이어야 합니다.");
+            }
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("[ERROR] 수량은 숫자로 입력해야 합니다.");
+        }
 
         return new OrderInput(name, quantity);
     }
