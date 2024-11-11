@@ -19,9 +19,30 @@ public class OrderService {
     }
 
     public Receipt createOrder(List<OrderInput> orderInputs, boolean useMembership) {
+        for (OrderInput input : orderInputs) {
+            Goods goods = findAndValidateGoods(input.getName());
+        }
+
+        for (OrderInput input : orderInputs) {
+            Goods goods = findAndValidateGoods(input.getName());
+            if (needsPromotionConfirmation(goods, input.getQuantity())) {
+                int regularQuantity = getRegularQuantity(goods, input.getQuantity());
+                throw new IllegalStateException(
+                        String.format("현재 %s %d개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까?",
+                                goods.getName(), regularQuantity));
+            }
+        }
+
         Order order = new Order(useMembership);
         int totalPromotionDiscount = processOrderItems(orderInputs, order);
         return new Receipt(order, totalPromotionDiscount);
+    }
+
+    private void validateOrderInputs(List<OrderInput> orderInputs) {
+        for (OrderInput input : orderInputs) {
+            Goods goods = findAndValidateGoods(input.getName());
+            validateStock(goods, input.getQuantity());
+        }
     }
 
     // 프로모션 추가 구매 가능 여부 확인 (MD추천상품 1+1)
@@ -82,9 +103,8 @@ public class OrderService {
 
     private int processOrderItem(OrderInput input, Order order) {
         Goods goods = findAndValidateGoods(input.getName());
-        validateStock(goods, input.getQuantity());
-
         PromotionCalculator calculator = createPromotionCalculator(goods, input.getQuantity());
+
         int freeQuantity = calculator.calculateFreeQuantity();
         int discount = calculator.calculateDiscount();
 
@@ -106,8 +126,14 @@ public class OrderService {
         return goods;
     }
 
-    private void validateStock(Goods goods, int quantity) {
-        int totalStock = goodsService.getTotalStock(goods.getName());
+    public void validateStock(Goods goods, int quantity) {
+        // 프로모션 상품과 일반 상품의 재고를 따로 계산
+        List<Goods> allGoods = goodsService.getAllGoodsWithName(goods.getName());
+
+        int totalStock = allGoods.stream()
+                .filter(Goods::hasStock)
+                .mapToInt(Goods::getStock)
+                .sum();
         if (totalStock < quantity) {
             throw new IllegalStateException("[ERROR] 재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
         }

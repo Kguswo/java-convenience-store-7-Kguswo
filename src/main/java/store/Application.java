@@ -55,6 +55,14 @@ public class Application {
         var inputs = inputConsole.readOrder();
         System.out.println();  // 입력 후 빈 줄 추가
 
+        // 먼저 모든 주문에 대해 재고 검증
+        for (var input : inputs) {
+            var goods = goodsService.findGoods(input.getName());
+            // 재고 검증
+            orderService.validateStock(goods, input.getQuantity());
+        }
+
+
         for (var input : inputs) {
             var modifiedInput = input;
             var goods = goodsService.findGoods(input.getName());
