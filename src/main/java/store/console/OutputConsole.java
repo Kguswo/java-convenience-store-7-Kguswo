@@ -26,7 +26,7 @@ public class OutputConsole {
             String promotionInfo = goods.hasPromotion() ?
                     " " + goods.getPromotionType().getDescription() : "";
 
-            System.out.printf("- %s %s원 %s%s%n",
+            System.out.printf("%-5s %s원 %s%s%n",
                     goods.getName(),
                     formatNumber(goods.getPrice()),
                     stockInfo,
@@ -37,11 +37,11 @@ public class OutputConsole {
 
     public void printReceipt(Receipt receipt) {
         System.out.println(STORE_HEADER);
-        System.out.printf("상품명\t\t\t수량\t\t금액\n");
+        System.out.printf("상품명\t\t\t\t수량\t\t금액\n");
 
         // 구매 항목 출력
         for (OrderItem item : receipt.getPurchasedItems()) {
-            System.out.printf("%s\t\t\t%d\t\t%,d%n",
+            System.out.printf("%-5s\t\t\t\t%d\t\t%,d%n",
                     item.getGoods().getName(),
                     item.getQuantity(),
                     item.calculateAmount());
@@ -52,7 +52,7 @@ public class OutputConsole {
         if (!freeItems.isEmpty()) {
             System.out.println(GIFT_HEADER);
             for (OrderItem item : freeItems) {
-                System.out.printf("%s\t\t%d%n",
+                System.out.printf("%-5s\t\t\t\t %d%n",
                         item.getGoods().getName(),
                         item.getFreeQuantity());
             }
@@ -66,14 +66,14 @@ public class OutputConsole {
                 .sum();
 
         // 금액 정보 출력
-        System.out.printf("총구매액\t\t%d\t%,d%n",
+        System.out.printf("총구매액\t\t\t\t%d\t\t%,d%n",
                 totalQuantity,
                 receipt.getTotalAmount());
-        System.out.printf("행사할인\t\t\t-%,d%n",
+        System.out.printf("행사할인\t\t\t\t\t\t-%,d%n",
                 receipt.getPromotionDiscount());
-        System.out.printf("멤버십할인\t\t\t-%,d%n",
+        System.out.printf("멤버십할인\t\t\t\t\t\t-%,d%n",
                 receipt.getMembershipDiscount());
-        System.out.printf("내실돈\t\t\t%,d%n",
+        System.out.printf("내실돈\t\t\t\t\t\t %,-5d%n",
                 receipt.getFinalAmount());
         System.out.println();
     }

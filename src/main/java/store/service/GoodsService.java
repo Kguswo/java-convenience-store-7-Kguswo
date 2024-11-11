@@ -37,7 +37,7 @@ public class GoodsService {
         try {
             List<String> lines = Files.readAllLines(Path.of(path));
             for (int i = 1; i < lines.size(); i++) {
-                parseLine(lines.get(i));
+                parsePromotionLine(lines.get(i));
             }
         } catch (IOException e) {
             throw new IllegalStateException("[ERROR] 프로모션 파일을 읽을 수 없습니다.");
