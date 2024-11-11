@@ -25,8 +25,8 @@ public class GoodsService {
     private void loadProducts(String path) {
         try {
             List<String> lines = Files.readAllLines(Path.of(path));
-            for (String line : lines) {
-                parseLine(line);
+            for (int i = 1; i < lines.size(); i++) {
+                parseLine(lines.get(i));
             }
         } catch (IOException e) {
             throw new IllegalStateException("[ERROR] 상품 파일을 읽을 수 없습니다.");
@@ -36,8 +36,8 @@ public class GoodsService {
     private void loadPromotions(String path) {
         try {
             List<String> lines = Files.readAllLines(Path.of(path));
-            for (String line : lines) {
-                parsePromotionLine(line);
+            for (int i = 1; i < lines.size(); i++) {
+                parseLine(lines.get(i));
             }
         } catch (IOException e) {
             throw new IllegalStateException("[ERROR] 프로모션 파일을 읽을 수 없습니다.");
