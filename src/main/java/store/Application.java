@@ -59,6 +59,9 @@ public class Application {
         for (var input : inputs) {
             var goods = goodsService.findGoods(input.getName());
             // 재고 검증
+            if (goods == null) {
+                throw new IllegalArgumentException("[ERROR] 존재하지 않는 상품입니다. 다시 입력해 주세요.");
+            }
             orderService.validateStock(goods, input.getQuantity());
         }
 
