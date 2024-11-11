@@ -52,7 +52,7 @@ public class OutputConsole {
         if (!freeItems.isEmpty()) {
             System.out.println(GIFT_HEADER);
             for (OrderItem item : freeItems) {
-                System.out.printf("%-5s\t\t\t\t %d%n",
+                System.out.printf("%-5s\t\t\t\t%d%n",
                         item.getGoods().getName(),
                         item.getFreeQuantity());
             }
