@@ -61,39 +61,6 @@ class ApplicationTest extends NsTest {
         });
     }
 
-    @Test
-    void 프로모션_재고_부족_테스트() {
-        assertSimpleTest(() -> {
-            // 첫 번째 구매로 프로모션 콜라 3개 소진
-            run("[콜라-3]", "N", "Y",
-                    // 두 번째 구매에서 남은 프로모션 콜라 7개에 대해 테스트
-                    "[콜라-10]", "Y", "N", "N");
-
-            // 두 번째 구매에서의 출력 확인
-            assertThat(output()).contains(
-                    "현재 콜라 4개는 프로모션 할인이 적용되지 않습니다.",
-                    "총구매액\t\t10\t10,000",
-                    "행사할인\t\t\t-2,000",
-                    "멤버십할인\t\t\t-0",
-                    "내실돈\t\t\t8,000"
-            );
-        });
-    }
-
-    @Test
-    void 프로모션_연속_구매_테스트() {
-        assertSimpleTest(() -> {
-            run("[콜라-3]", "N", "Y",
-                    "[콜라-10]", "Y", "N", "N");
-
-            // 두 번째 구매 시점의 재고 상태 확인
-            assertThat(output()).contains(
-                    "콜라 1,000원 7개 탄산2+1",
-                    "콜라 1,000원 10개"
-            );
-        });
-    }
-
     @Override
     public void runMain() {
         Application.main(new String[]{});

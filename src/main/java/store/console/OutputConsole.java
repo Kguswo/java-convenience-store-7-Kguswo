@@ -8,9 +8,11 @@ import java.util.List;
 
 public class OutputConsole {
     private static final String STORE_NAME = "W 편의점";
+    // 44개의 = 문자
     private static final String SEPARATOR = "====================================";
-    private static final String STORE_HEADER = "==============" + STORE_NAME + "================";
-    private static final String GIFT_HEADER = "=============증    정===============";
+    private static final String STORE_HEADER = "==============W 편의점================";
+    private static final String GIFT_HEADER = "=============증     정===============";
+    private static final int HEADER_LENGTH = 44;  // 전체 헤더 길이
 
     public void printWelcomeMessage() {
         System.out.println("안녕하세요. " + STORE_NAME + "입니다.");
@@ -35,48 +37,44 @@ public class OutputConsole {
 
     public void printReceipt(Receipt receipt) {
         System.out.println(STORE_HEADER);
-        System.out.println("상품명\t\t수량\t금액");
+        System.out.printf("%-18s%-10s%-9s%n", "상품명", "수량", "금액");
 
         // 구매 항목 출력
         for (OrderItem item : receipt.getPurchasedItems()) {
-            String name = item.getGoods().getName();
-            String tabs = name.length() <= 3 ? "\t\t" : "\t";
-            System.out.printf("%s%s%d\t%,d%n",
-                    name,
-                    tabs,
+            System.out.printf("%-18s%-10d%,d%n",
+                    item.getGoods().getName(),
                     item.getQuantity(),
                     item.calculateAmount());
         }
 
-        // 증정 품목 출력 - 증정 품목이 있을 때만
+        // 증정 품목 출력
         List<OrderItem> freeItems = receipt.getFreeItems();
         if (!freeItems.isEmpty()) {
             System.out.println(GIFT_HEADER);
             for (OrderItem item : freeItems) {
-                String name = item.getGoods().getName();
-                String tabs = name.length() <= 3 ? "\t\t" : "\t";
-                System.out.printf("%s%s%d%n",
-                        name,
-                        tabs,
+                System.out.printf("%-15s%5d%n",
+                        item.getGoods().getName(),
                         item.getFreeQuantity());
             }
         }
 
         System.out.println(SEPARATOR);
 
+        // 총 구매 수량 계산
         int totalQuantity = receipt.getPurchasedItems().stream()
                 .mapToInt(OrderItem::getQuantity)
                 .sum();
 
-        System.out.printf("총구매액\t\t%d\t%,d%n",
-                totalQuantity, receipt.getTotalAmount());
-        System.out.printf("행사할인\t\t\t-%,d%n",
-                receipt.getPromotionDiscount());
-        System.out.printf("멤버십할인\t\t\t-%,d%n",
-                receipt.getMembershipDiscount());
-        System.out.printf("내실돈\t\t\t%,d%n",
-                receipt.getFinalAmount());
-        System.out.println();
+        // 금액 정보 출력
+        System.out.printf("%-18s%-10d%,d%n", "총구매액",
+                totalQuantity,
+                receipt.getTotalAmount());
+        System.out.printf("%-28s%-25s%n", "행사할인",
+                String.format("-%,d", receipt.getPromotionDiscount()));
+        System.out.printf("%-27s%-25s%n", "멤버십할인",
+                String.format("-%,d", receipt.getMembershipDiscount()));
+        System.out.printf("%-29s%-25s%n", "내실돈",
+                String.format("%,d", receipt.getFinalAmount()));
     }
 
     public void printErrorMessage(String message) {

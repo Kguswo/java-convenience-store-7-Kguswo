@@ -149,14 +149,7 @@ public class OrderService {
             deductStock(regularGoods, remainingQuantity);
         }
 
-        // 프로모션 재고 차감 (증정품에 대해서만)
-        if (freeQuantity > 0 && goods.hasPromotion()) {
-            Promotion promotion = goodsService.findPromotion(
-                    goods.getPromotionType().getDescription());
-            if (promotion != null && promotion.isValid()) {
-                promotion.decreasePromotionStock(freeQuantity);
-            }
-        }
+        // 프로모션 재고 차감 관련 코드 제거 (이미 앞에서 처리됨)
     }
 
     private int deductStock(List<Goods> goodsList, int quantity) {
