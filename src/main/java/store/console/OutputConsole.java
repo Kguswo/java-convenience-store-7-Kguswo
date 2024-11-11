@@ -26,7 +26,7 @@ public class OutputConsole {
             String promotionInfo = goods.hasPromotion() ?
                     " " + goods.getPromotionType().getDescription() : "";
 
-            System.out.printf("%-5s %s원 %s%s%n",
+            System.out.printf("- %-5s %s원 %s%s%n",
                     goods.getName(),
                     formatNumber(goods.getPrice()),
                     stockInfo,
