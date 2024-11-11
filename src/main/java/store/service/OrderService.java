@@ -19,20 +19,6 @@ public class OrderService {
     }
 
     public Receipt createOrder(List<OrderInput> orderInputs, boolean useMembership) {
-        for (OrderInput input : orderInputs) {
-            Goods goods = findAndValidateGoods(input.getName());
-        }
-
-        for (OrderInput input : orderInputs) {
-            Goods goods = findAndValidateGoods(input.getName());
-            if (needsPromotionConfirmation(goods, input.getQuantity())) {
-                int regularQuantity = getRegularQuantity(goods, input.getQuantity());
-                throw new IllegalStateException(
-                        String.format("현재 %s %d개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까?",
-                                goods.getName(), regularQuantity));
-            }
-        }
-
         Order order = new Order(useMembership);
         int totalPromotionDiscount = processOrderItems(orderInputs, order);
         return new Receipt(order, totalPromotionDiscount);

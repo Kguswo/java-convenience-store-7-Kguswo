@@ -51,11 +51,11 @@ public class Application {
     }
 
     private void processOrder() {
-        try {
-            List<InputConsole.OrderInput> finalOrderInputs = new ArrayList<>();
-            var inputs = inputConsole.readOrder();
-            System.out.println();  // 입력 후 빈 줄 추가
+        List<InputConsole.OrderInput> finalOrderInputs = new ArrayList<>();
+        var inputs = inputConsole.readOrder();
+        System.out.println();  // 입력 후 빈 줄 추가
 
+        try {
             // 먼저 모든 주문에 대해 재고 검증
             for (var input : inputs) {
                 var goods = goodsService.findGoods(input.getName());
