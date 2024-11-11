@@ -11,7 +11,7 @@ public class OutputConsole {
     // 44개의 = 문자
     private static final String SEPARATOR = "====================================";
     private static final String STORE_HEADER = "==============W 편의점================";
-    private static final String GIFT_HEADER = "=============증\t정===============";
+    private static final String GIFT_HEADER = "=============증\t\t정===============";
     private static final int HEADER_LENGTH = 44;  // 전체 헤더 길이
 
     public void printWelcomeMessage() {
