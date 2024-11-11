@@ -37,13 +37,11 @@ public class OutputConsole {
 
     public void printReceipt(Receipt receipt) {
         System.out.println(STORE_HEADER);
-//        System.out.printf("상품명\t\t\t\t수량\t\t금액\n");
-        System.out.printf("상품명\t\t수량\t금액\n");  // 탭 수정
+        System.out.printf("상품명\t\t\t\t수량\t\t금액\n");
 
         // 구매 항목 출력
         for (OrderItem item : receipt.getPurchasedItems()) {
-//            System.out.printf("%-5s\t\t\t\t%d\t\t%,d%n",
-            System.out.printf("%-5s\t\t%d \t%,d%n",  // 탭과 공백 수정
+            System.out.printf("%-5s\t\t\t\t%d\t\t%,d%n",
                     item.getGoods().getName(),
                     item.getQuantity(),
                     item.calculateAmount());
@@ -52,13 +50,9 @@ public class OutputConsole {
         // 증정 품목 출력
         List<OrderItem> freeItems = receipt.getFreeItems();
         if (!freeItems.isEmpty()) {
-//            System.out.println(GIFT_HEADER);
-            System.out.println("=============증 정===============");  // 탭 제거
-
+            System.out.println(GIFT_HEADER);
             for (OrderItem item : freeItems) {
-//                System.out.printf("%-5s\t\t\t\t%d%n",
-                System.out.printf("%-5s\t\t%d%n",
-
+                System.out.printf("%-5s\t\t\t\t%d%n",
                         item.getGoods().getName(),
                         item.getFreeQuantity());
             }
